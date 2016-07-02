@@ -15,7 +15,7 @@ type Callback eff a = Either Error a -> Eff (jsdom :: JSDOM | eff) Unit
 #### `env`
 
 ``` purescript
-env :: forall configs eff. String -> Array String -> {  | configs } -> Callback eff Window -> Eff (jsdom :: JSDOM | eff) Unit
+env :: forall configs eff. String -> Array String -> {  | configs } -> Callback eff Window -> (Eff (jsdom :: JSDOM | eff) Unit)
 ```
 
 #### `envAff`

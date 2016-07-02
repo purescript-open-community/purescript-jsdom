@@ -1,11 +1,13 @@
 {
+  "private": true,
   "name": "purescript-jsdom",
   "version": "0.0.1",
   "authors": [
-    "Seitaro Yuuki <sensitivejapaneseman@gmail.com>"
+    "Seitaro Yuuki <sensitivejapaneseman@gmail.com>",
+    "Ryan Rempel <rgrempel@gmail.com>"
   ],
   "license": "MIT",
   "dependencies": {
-    "jsdom": "^6.5.1"
+    "jsdom": "^9.3.0"
   }
 }

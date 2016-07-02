@@ -1,40 +1,40 @@
 module DOM.JSDOM
-  ( JSDOM()
-  , Callback()
+  ( JSDOM
+  , Callback
   , env
   , envAff
   , jsdom
   ) where
 
-import Control.Monad.Aff
-import Control.Monad.Eff
-import Control.Monad.Eff.Exception
-import Data.Either
-import Data.Function.Eff
-import Data.Maybe
-import Data.Nullable
-import DOM.Node.Types
-import DOM.HTML.Types
-import Prelude
+import Control.Monad.Aff (Aff, makeAff)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Exception (Error)
+import Data.Either (Either(..), either)
+import Data.Function.Eff (EffFn2, EffFn4, runEffFn2, runEffFn4, mkEffFn2)
+import Data.Maybe (maybe)
+import Data.Nullable (Nullable, toMaybe)
+import DOM.Node.Types (Document)
+import DOM.HTML.Types (Window)
+import Prelude (Unit, ($))
 
 foreign import data JSDOM :: !
 
-type JSCallback eff a = ExportEffFn2 (Nullable Error) a (Eff (jsdom :: JSDOM | eff) Unit)
+type JSCallback eff a = EffFn2 (jsdom :: JSDOM | eff) (Nullable Error) a  Unit
 type Callback eff a = Either Error a -> Eff (jsdom :: JSDOM | eff) Unit
 
 toJSCallback :: forall a eff. Callback eff a -> JSCallback eff a
-toJSCallback f = mkExportEffFn2 (\e a -> f $ maybe (Right a) Left (toMaybe e))
+toJSCallback f = mkEffFn2 (\e a -> f $ maybe (Right a) Left (toMaybe e))
 
 foreign import _jsdom ::
-  { env :: forall configs eff. ImportEffFn4 String (Array String) { | configs} (JSCallback eff Window) (Eff (jsdom :: JSDOM | eff) Unit)
-  , jsdom :: forall configs eff. ImportEffFn2 String { | configs} (Eff (jsdom :: JSDOM | eff) Document)
+  { env :: forall configs eff. EffFn4 (jsdom :: JSDOM | eff) String (Array String) { | configs} (JSCallback eff Window) Unit
+  , jsdom :: forall configs eff. EffFn2 (jsdom :: JSDOM | eff) String { | configs} Document
   }
 
 env :: forall configs eff. String -> Array String -> { | configs} -> Callback eff Window -> (Eff (jsdom :: JSDOM | eff) Unit)
-env urlOrHtml scripts configs callback = runImportEffFn4 _jsdom.env urlOrHtml scripts configs (toJSCallback callback)
+env urlOrHtml scripts configs callback = runEffFn4 _jsdom.env urlOrHtml scripts configs (toJSCallback callback)
 
 envAff :: forall configs eff. String -> Array String -> { | configs} -> Aff (jsdom :: JSDOM | eff) Window
 envAff urlOrHtml scripts configs = makeAff \e a -> env urlOrHtml scripts configs $ either e a
 
 jsdom :: forall configs eff. String -> { | configs} -> Eff (jsdom :: JSDOM | eff) Document
-jsdom markup configs = runImportEffFn2 _jsdom.jsdom markup configs
+jsdom markup configs = runEffFn2 _jsdom.jsdom markup configs
