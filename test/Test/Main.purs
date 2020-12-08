@@ -1,7 +1,6 @@
 module Test.Main where
 
-import Data.Maybe
-import Debug.Trace
+import Data.Maybe (Maybe(..), isJust, maybe)
 import Prelude
 
 import Control.Monad.Error.Class (throwError)
@@ -14,8 +13,6 @@ import Test.Assert (assert)
 import Web.DOM (Node)
 import Web.DOM.Document as Web.DOM.Document
 import Web.DOM.Node as Web.DOM.Node
-import Web.HTML.HTMLDocument as Web.HTML.HTMLDocument
-import Web.HTML.Window as Web.HTML.Window
 import Web.HTML.HTMLElement as Web.HTML.HTMLElement
 
 firstText :: Node -> Effect (Maybe String)

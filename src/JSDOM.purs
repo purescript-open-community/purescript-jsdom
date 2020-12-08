@@ -4,8 +4,6 @@ import Effect.Uncurried (EffectFn1, EffectFn2, runEffectFn1, runEffectFn2)
 
 import Effect (Effect)
 import Record as Record
-import Unsafe.Coerce (unsafeCoerce)
-import Web.HTML.Window (Window)
 import Web.DOM.Document as Web.DOM.Document
 
 data JSDOM
