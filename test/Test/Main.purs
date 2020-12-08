@@ -1,6 +1,6 @@
 module Test.Main where
 
-import DOM.JSDOM
+import JSDOM as JSDOM
 import Data.Traversable
 import Effect.Class
 import Prelude
@@ -19,6 +19,7 @@ import Web.DOM.Document as Web.DOM.Document
 import Web.DOM.Node as Web.DOM.Node
 import Web.HTML.HTMLDocument as Web.HTML.HTMLDocument
 import Web.HTML.Window as Web.HTML.Window
+import Debug.Trace
 
 firstText :: Node -> Effect (Maybe String)
 firstText node = Web.DOM.Node.firstChild node >>= traverse Web.DOM.Node.textContent
@@ -32,20 +33,21 @@ exampleURI = "http://www.nicovideo.jp/"
 main :: Effect Unit
 main = do
   log "Testing jsdom"
-  text <- (jsdom exampleHTML {}) <#> Web.DOM.Document.toNode >>= firstText
+  jsdomWindow <-
+    JSDOM.jsdom exampleHTML JSDOM.defaultConstructorOptions
+    >>= JSDOM.window
+    <#> JSDOM.unsafeJSDOMWindowToWindow
+  jsdomDocument <- Web.HTML.Window.document jsdomWindow
+
+  text <- firstText $ Web.HTML.HTMLDocument.toNode jsdomDocument
   assert $ text == Just "hogeika"
 
   log "Testing jsdom config"
-  uri <- (jsdom exampleHTML { url: exampleURI }) >>= Web.DOM.Document.documentURI
+  uri <-
+    JSDOM.jsdom exampleHTML (JSDOM.defaultConstructorOptions { url = exampleURI })
+    >>= JSDOM.window
+    <#> JSDOM.unsafeJSDOMWindowToWindow
+    >>= Web.HTML.Window.document
+    >>= Web.HTML.HTMLDocument.toDocument
+    >>> Web.DOM.Document.documentURI
   assert $ uri == exampleURI
-
-  log "Testing env"
-
-  launchAff_ do
-    window <- env exampleURI [] {}
-    liftEffect $ do
-      docUri <- Web.HTML.Window.document window <#> Web.HTML.HTMLDocument.toDocument >>= Web.DOM.Document.documentURI
-      assert $ isJust $ stripPrefix (Pattern exampleURI) docUri
-
-  -- Ignore the canceler we get from runAff
-  pure unit

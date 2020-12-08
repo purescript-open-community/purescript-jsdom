@@ -10,6 +10,7 @@
   , "nullable"
   , "assert"
   , "debug"
+  , "record"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
