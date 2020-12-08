@@ -1,17 +1,8 @@
 module JSDOM where
 
-import Effect.Uncurried
-import Prelude
-import Web.DOM
-import Web.HTML
+import Effect.Uncurried (EffectFn1, EffectFn2, runEffectFn1, runEffectFn2)
 
-import Data.Either (Either(..), either)
-import Data.Maybe (maybe)
-import Data.Nullable (Nullable)
-import Data.Nullable as Nullable
 import Effect (Effect)
-import Effect.Aff (Aff, makeAff, nonCanceler)
-import Effect.Exception (Error)
 import Record as Record
 import Unsafe.Coerce (unsafeCoerce)
 import Web.HTML.Window (Window)

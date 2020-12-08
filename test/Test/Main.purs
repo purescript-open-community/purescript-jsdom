@@ -1,25 +1,18 @@
 module Test.Main where
 
 import JSDOM as JSDOM
-import Data.Traversable
-import Effect.Class
+import Data.Traversable (traverse)
 import Prelude
-import Web.DOM
-import Web.HTML
+import Web.DOM (Node)
 
-import Data.Maybe (Maybe(..), isJust)
-import Data.Nullable (toMaybe)
-import Data.String (Pattern(..), stripPrefix)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Aff (runAff, launchAff_)
 import Effect.Console (log)
-import Effect.Exception (error, throwException)
 import Test.Assert (assert)
 import Web.DOM.Document as Web.DOM.Document
 import Web.DOM.Node as Web.DOM.Node
 import Web.HTML.HTMLDocument as Web.HTML.HTMLDocument
 import Web.HTML.Window as Web.HTML.Window
-import Debug.Trace
 
 firstText :: Node -> Effect (Maybe String)
 firstText node = Web.DOM.Node.firstChild node >>= traverse Web.DOM.Node.textContent
