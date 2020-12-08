@@ -64,18 +64,4 @@ jsdom = runEffectFn2 _jsdom
 window :: JSDOM -> Effect JSDOMWindow
 window = runEffectFn1 _window
 
--- | -- Because all methods will work
--- | -- except the `fromXXX` methods
--- | -- e.g.
-
--- | -- ```purs
--- | -- traceM $ Web.HTML.HTMLDocument.fromNode (Web.HTML.HTMLDocument.toNode jsdomDocument)
--- | -- assert $ isJust (Web.HTML.HTMLDocument.fromNode (Web.HTML.HTMLDocument.toNode jsdomDocument))
--- | -- ```
--- | -- TODO:
--- | -- | reimplement https://github.com/purescript-web/purescript-web-events/blob/5e6aa3e13af2a2b8111765685bd9120e0f3b8029/src/Web/Internal/FFI.js#L3-L9 and then all fromXXX methods
--- | -- | https://github.com/DefinitelyTyped/DefinitelyTyped/blob/267a3fafa5cedc1aaf8ea3cdb9aace1b4438e2f4/types/jsdom/ts3.3/index.d.ts#L280
--- | unsafeJSDOMWindowToWindow :: JSDOMWindow -> Window
--- | unsafeJSDOMWindowToWindow = unsafeCoerce
-
 foreign import document :: JSDOMWindow -> Effect Web.DOM.Document.Document -- not HTMLDocument
