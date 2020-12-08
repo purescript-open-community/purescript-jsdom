@@ -1,18 +1,22 @@
 module Test.Main where
 
-import JSDOM as JSDOM
-import Data.Traversable (traverse)
+import Data.Maybe
+import Debug.Trace
 import Prelude
-import Web.DOM (Node)
 
-import Data.Maybe (Maybe(..))
+import Control.Monad.Error.Class (throwError)
+import Data.Traversable (traverse)
 import Effect (Effect)
 import Effect.Console (log)
+import Effect.Exception (error)
+import JSDOM as JSDOM
 import Test.Assert (assert)
+import Web.DOM (Node)
 import Web.DOM.Document as Web.DOM.Document
 import Web.DOM.Node as Web.DOM.Node
 import Web.HTML.HTMLDocument as Web.HTML.HTMLDocument
 import Web.HTML.Window as Web.HTML.Window
+import Web.HTML.HTMLElement as Web.HTML.HTMLElement
 
 firstText :: Node -> Effect (Maybe String)
 firstText node = Web.DOM.Node.firstChild node >>= traverse Web.DOM.Node.textContent
@@ -26,21 +30,27 @@ exampleURI = "http://www.nicovideo.jp/"
 main :: Effect Unit
 main = do
   log "Testing jsdom"
-  jsdomWindow <-
+
+  (jsdomDocument :: Web.DOM.Document.Document) <-
     JSDOM.jsdom exampleHTML JSDOM.defaultConstructorOptions
     >>= JSDOM.window
-    <#> JSDOM.unsafeJSDOMWindowToWindow
-  jsdomDocument <- Web.HTML.Window.document jsdomWindow
+    >>= JSDOM.document
 
-  text <- firstText $ Web.HTML.HTMLDocument.toNode jsdomDocument
+  (pNode :: Web.DOM.Node.Node) <-
+    Web.DOM.Node.firstChild (Web.DOM.Document.toNode jsdomDocument)
+    >>= maybe (throwError $ error "pNode not found") pure
+
+  text <- firstText $ Web.DOM.Document.toNode jsdomDocument
   assert $ text == Just "hogeika"
 
   log "Testing jsdom config"
-  uri <-
+
+  (uri :: String) <-
     JSDOM.jsdom exampleHTML (JSDOM.defaultConstructorOptions { url = exampleURI })
     >>= JSDOM.window
-    <#> JSDOM.unsafeJSDOMWindowToWindow
-    >>= Web.HTML.Window.document
-    >>= Web.HTML.HTMLDocument.toDocument
-    >>> Web.DOM.Document.documentURI
+    >>= JSDOM.document
+    >>= Web.DOM.Document.documentURI
+
   assert $ uri == exampleURI
+
+  assert $ isJust $ Web.HTML.HTMLElement.fromNode pNode

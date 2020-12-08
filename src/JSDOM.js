@@ -9,3 +9,9 @@ exports._jsdom = function(html, constructorOptions) {
 exports._window = function(jsdom) {
   return jsdom.window
 };
+
+exports.document = function(jsdomWindow) {
+  return function () {
+    return jsdomWindow.document
+  }
+};
