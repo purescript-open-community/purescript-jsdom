@@ -1,40 +1,41 @@
-module DOM.JSDOM
-  ( JSDOM
-  , Callback
-  , env
-  , envAff
-  , jsdom
-  ) where
+module DOM.JSDOM where
 
-import Control.Monad.Aff (Aff, makeAff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Exception (Error)
+import Effect.Uncurried
+import Prelude
+import Web.DOM
+import Web.HTML
+
 import Data.Either (Either(..), either)
-import Data.Function.Eff (EffFn2, EffFn4, runEffFn2, runEffFn4, mkEffFn2)
 import Data.Maybe (maybe)
-import Data.Nullable (Nullable, toMaybe)
-import DOM.Node.Types (Document)
-import DOM.HTML.Types (Window)
-import Prelude (Unit, ($))
+import Data.Nullable (Nullable)
+import Data.Nullable as Nullable
+import Effect (Effect)
+import Effect.Aff (Aff, makeAff, nonCanceler)
+import Effect.Exception (Error)
 
-foreign import data JSDOM :: !
-
-type JSCallback eff a = EffFn2 (jsdom :: JSDOM | eff) (Nullable Error) a  Unit
-type Callback eff a = Either Error a -> Eff (jsdom :: JSDOM | eff) Unit
-
-toJSCallback :: forall a eff. Callback eff a -> JSCallback eff a
-toJSCallback f = mkEffFn2 (\e a -> f $ maybe (Right a) Left (toMaybe e))
-
-foreign import _jsdom ::
-  { env :: forall configs eff. EffFn4 (jsdom :: JSDOM | eff) String (Array String) { | configs} (JSCallback eff Window) Unit
-  , jsdom :: forall configs eff. EffFn2 (jsdom :: JSDOM | eff) String { | configs} Document
+type Config =
+  { url                  :: String
+  , referrer             :: String
+  , contentType          :: String
+  , includeNodeLocations :: Boolean
+  , storageQuota         :: Int
   }
 
-env :: forall configs eff. String -> Array String -> { | configs} -> Callback eff Window -> (Eff (jsdom :: JSDOM | eff) Unit)
-env urlOrHtml scripts configs callback = runEffFn4 _jsdom.env urlOrHtml scripts configs (toJSCallback callback)
+foreign import _jsdom ::
+  { env :: EffectFn4 String (Array String) Config (EffectFn2 (Nullable Error) Window Unit) Unit
+  , jsdom :: EffectFn2 String Config Document
+  }
 
-envAff :: forall configs eff. String -> Array String -> { | configs} -> Aff (jsdom :: JSDOM | eff) Window
-envAff urlOrHtml scripts configs = makeAff \e a -> env urlOrHtml scripts configs $ either e a
+envE :: String -> Array String -> Config -> (Either Error Window -> Effect Unit) -> Effect Unit
+envE = \urlOrHtml scripts configs callback -> runEffectFn4 _jsdom.env urlOrHtml scripts configs (toJSCallback callback)
+  where
+    toJSCallback :: forall a. (Either Error a -> Effect Unit) -> EffectFn2 (Nullable Error) a Unit
+    toJSCallback f = mkEffectFn2 (\e a -> f $ maybe (Right a) Left (Nullable.toMaybe e))
 
-jsdom :: forall configs eff. String -> { | configs} -> Eff (jsdom :: JSDOM | eff) Document
-jsdom markup configs = runEffFn2 _jsdom.jsdom markup configs
+env :: String -> Array String -> Config -> Aff Window
+env urlOrHtml scripts configs = makeAff \callback -> do
+  envE urlOrHtml scripts configs callback
+  pure nonCanceler
+
+jsdom :: String -> Config -> Effect Document
+jsdom markup configs = runEffectFn2 _jsdom.jsdom markup configs
