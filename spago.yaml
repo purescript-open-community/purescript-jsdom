@@ -7,9 +7,9 @@ package:
       githubOwner: purescript-open-community
       githubRepo: purescript-jsdom
   dependencies:
-    - effect
-    - record
-    - web-dom
+    - effect: ">=4.0.0 <5.0.0"
+    - record: ">=4.0.0 <5.0.0"
+    - web-dom: ">=6.0.0 <7.0.0"
   test:
     main: Test.Main
     dependencies:
