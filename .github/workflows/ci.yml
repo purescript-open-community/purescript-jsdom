@@ -27,6 +27,16 @@ jobs:
             .spago
             output
 
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            node_modules
+
+      - name: Install Node.js modules (production only)
+        run: npm install --production
+
       - name: Build source
         run: spago build --censor-stats --strict --pedantic-packages
 
