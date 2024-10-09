@@ -36,8 +36,8 @@ defaultBaseOptions =
   }
 
 type ConstructorOptionsRow =
-  ( url          :: String
-  , contentType  :: String
+  ( url :: String
+  , contentType :: String
   , storageQuota :: Int
   | BaseOptionsRow
   )
@@ -47,10 +47,10 @@ type ConstructorOptions = Record ConstructorOptionsRow
 defaultConstructorOptions :: ConstructorOptions
 defaultConstructorOptions =
   Record.merge defaultBaseOptions
-  { url:          "about:blank"
-  , contentType:  "text/html"
-  , storageQuota: 5000000
-  }
+    { url: "about:blank"
+    , contentType: "text/html"
+    , storageQuota: 5000000
+    }
 
 jsdom :: String -> ConstructorOptions -> Effect JSDOM
 jsdom = runEffectFn2 _jsdom

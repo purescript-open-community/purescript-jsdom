@@ -30,12 +30,12 @@ main = do
 
   (jsdomDocument :: Web.DOM.Document.Document) <-
     JSDOM.jsdom exampleHTML JSDOM.defaultConstructorOptions
-    >>= JSDOM.window
-    >>= JSDOM.document
+      >>= JSDOM.window
+      >>= JSDOM.document
 
   (pNode :: Web.DOM.Node.Node) <-
     Web.DOM.Node.firstChild (Web.DOM.Document.toNode jsdomDocument)
-    >>= maybe (throwError $ error "pNode not found") pure
+      >>= maybe (throwError $ error "pNode not found") pure
 
   text <- firstText $ Web.DOM.Document.toNode jsdomDocument
   assert $ text == Just "hogeika"
@@ -44,9 +44,9 @@ main = do
 
   (uri :: String) <-
     JSDOM.jsdom exampleHTML (JSDOM.defaultConstructorOptions { url = exampleURI })
-    >>= JSDOM.window
-    >>= JSDOM.document
-    >>= Web.DOM.Document.documentURI
+      >>= JSDOM.window
+      >>= JSDOM.document
+      >>= Web.DOM.Document.documentURI
 
   assert $ uri == exampleURI
 
