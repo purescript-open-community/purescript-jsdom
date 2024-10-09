@@ -52,14 +52,15 @@ defaultConstructorOptions =
   , storageQuota: 5000000
   }
 
-foreign import _jsdom :: EffectFn2 String ConstructorOptions JSDOM
-
-foreign import _window :: EffectFn1 JSDOM JSDOMWindow
-
 jsdom :: String -> ConstructorOptions -> Effect JSDOM
 jsdom = runEffectFn2 _jsdom
 
 window :: JSDOM -> Effect JSDOMWindow
 window = runEffectFn1 _window
 
-foreign import document :: JSDOMWindow -> Effect Web.DOM.Document.Document -- not HTMLDocument
+document :: JSDOMWindow -> Effect Web.DOM.Document.Document
+document = runEffectFn1 _document
+
+foreign import _jsdom :: EffectFn2 String ConstructorOptions JSDOM
+foreign import _window :: EffectFn1 JSDOM JSDOMWindow
+foreign import _document :: EffectFn1 JSDOMWindow Web.DOM.Document.Document -- not HTMLDocument

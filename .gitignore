@@ -11,3 +11,4 @@ package-lock.json
 .purs-repl
 .psc-ide-port
 yarn.lock
+package-lock.json

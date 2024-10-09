@@ -1,0 +1,27 @@
+package:
+  name: jsdom
+  publish:
+    version: 1.0.0
+    license: MIT
+    location:
+      githubOwner: purescript-open-community
+      githubRepo: purescript-jsdom
+  dependencies:
+    - effect
+    - record
+    - web-dom
+  test:
+    main: Test.Main
+    dependencies:
+      - assert
+      - console
+      - exceptions
+      - foldable-traversable
+      - maybe
+      - prelude
+      - transformers
+      - web-html
+workspace:
+  extraPackages: {}
+  packageSet:
+    registry: 60.4.0
